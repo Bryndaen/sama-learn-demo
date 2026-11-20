@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sama Learn demo</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lato:wght@400;700&family=Montserrat:wght@600;700&display=swap">
+<style>
+/* VOICE: friendly, calm, made for a child using a laptop for the first time; big targets, few words.
+   IDEA: a learning app that ships on a refurbished laptop: login card, lessons, a pretend laptop to practise on.
+   PICTURE: the practice laptop screen in module 1; elsewhere the working app itself.
+   COLOUR and TYPE: Sama Green lead, Sama Brown text, Moss and Red accents; Montserrat headings, Lato body.
+   LAYOUT: app bar on top, one column of large cards, teacher dashboard as a clean table. */
+:root{color-scheme:light dark;
+--bg:light-dark(#F0F4EF,#151a15);--card:light-dark(#ffffff,#1f261f);--ink:light-dark(#453722,#eef2ec);--soft:light-dark(#4A4A4A,#c9d1c6);
+--g:#5C785A;--g2:light-dark(#4b6449,#86a583);--moss:#9C9265;--red:#B25F65;--line:light-dark(#d9e1d6,#334033);--tint:light-dark(#e6ede4,#253025)}
+:root[data-theme=light]{color-scheme:light}:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+body{margin:0;background:var(--bg);color:var(--soft);font:17px/1.55 Lato,system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:Montserrat,system-ui,sans-serif;color:var(--ink);line-height:1.15;margin:0 0 .4em;text-wrap:balance}
+h1{font-size:clamp(26px,4vw,36px)}h2{font-size:24px}h3{font-size:18px}
+button,input{font:inherit}
+button{min-height:44px;border-radius:12px;border:2px solid transparent;padding:8px 18px;cursor:pointer;font-weight:700;background:var(--g);color:#fff}
+button.ghost{background:transparent;color:var(--g2);border-color:var(--g)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--moss);outline-offset:2px}
+button:disabled{opacity:.45;cursor:not-allowed}
+input[type=text],input[type=password]{width:100%;font-size:18px;padding:12px;border-radius:10px;border:2px solid var(--line);background:var(--card);color:var(--ink)}
+.bar{background:var(--g);color:#fff;padding:12px max(4vw,16px);display:flex;gap:12px;align-items:center;flex-wrap:wrap}
+.bar b{font-family:Montserrat,sans-serif;font-size:20px;margin-right:auto}
+.bar span{opacity:.92}.bar button{background:#fff;color:var(--g);min-height:38px;padding:4px 14px}
+main{max-width:980px;margin:0 auto;padding:24px max(4vw,16px) 48px}
+.card{background:var(--card);border-radius:18px;padding:22px;border:1px solid var(--line);margin-bottom:18px}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:16px}
+.mod{display:flex;flex-direction:column;gap:8px}.mod p{margin:0;flex:1}
+.tag{font-size:13px;font-weight:700;color:var(--g2)}.done{color:var(--red)}
+.stars{color:var(--moss);font-size:20px;letter-spacing:2px}
+.note{font-size:14px;color:var(--soft);opacity:.85}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.pinpad{display:grid;grid-template-columns:repeat(3,minmax(0,88px));gap:12px;justify-content:start}
+.pinpad button{background:var(--tint);min-height:80px;display:grid;place-items:center;border-color:var(--line)}
+.slots{display:flex;gap:10px;margin:12px 0}.slot{width:56px;height:56px;border-radius:12px;border:2px dashed var(--line);display:grid;place-items:center}
+.who{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,150px),1fr));gap:10px}
+.who button{background:var(--tint);color:var(--ink);text-align:left;border-color:var(--line)}
+.who button.sel{border-color:var(--g);background:var(--card)}
+.q{margin:14px 0}.q p{font-weight:700;color:var(--ink);margin:0 0 6px}
+.opts{display:grid;gap:8px}.opts button{background:var(--tint);color:var(--ink);text-align:left;border-color:var(--line)}
+.opts button.pick{border-color:var(--g);background:var(--card)}
+.video{border-radius:14px;background:var(--ink);color:var(--bg);padding:18px;display:flex;gap:14px;align-items:center;margin-bottom:16px}
+.video button{background:var(--moss)}
+.msg{min-height:26px;font-weight:700;color:var(--g2)}.msg.bad{color:var(--red)}
+/* practice laptop */
+.laptop{max-width:560px}
+.screen{position:relative;aspect-ratio:16/10;border:14px solid #2e2a24;border-radius:14px 14px 4px 4px;background:#111;overflow:hidden}
+.screen.on{background:linear-gradient(160deg,#6f8f6c,#3f573d)}
+.base{height:18px;background:#5a5249;border-radius:0 0 14px 14px;margin:0 -24px;display:flex;justify-content:center}
+.pwr{margin-top:14px;display:flex;gap:10px;align-items:center}
+.task{position:absolute;left:0;right:0;bottom:0;height:34px;background:rgba(20,24,20,.85);display:flex;align-items:center;padding:0 6px}
+.task button{min-height:28px;padding:2px 12px;border-radius:6px;font-size:14px}
+.menu{position:absolute;left:6px;bottom:40px;background:#fff;color:#222;border-radius:8px;padding:6px;display:grid;gap:4px;width:150px}
+.menu button{background:#eef2ec;color:#222;min-height:34px;font-size:14px;text-align:left;border-radius:6px}
+.win{position:absolute;left:10%;top:10%;width:80%;height:62%;background:#fff;color:#222;border-radius:8px;overflow:hidden;display:flex;flex-direction:column}
+.win header{background:#dfe6dc;padding:4px 8px;display:flex;align-items:center;font-size:14px;font-weight:700}
+.win header button{margin-left:auto;min-height:28px;padding:0 10px;background:var(--red);border-radius:6px}
+.win div{padding:10px;display:grid;gap:8px}.win input{font-size:15px;padding:8px;color:#222;background:#fff}
+.icon{position:absolute;color:#fff;font-size:12px;text-align:center;width:64px}
+.pulse{animation:p 1.2s infinite;box-shadow:0 0 0 0 rgba(255,216,74,.9)}
+@keyframes p{70%{box-shadow:0 0 0 10px rgba(255,216,74,0)}100%{box-shadow:0 0 0 0 rgba(255,216,74,0)}}
+@media(prefers-reduced-motion:reduce){.pulse{animation:none;outline:3px solid #ffd84a}}
+.files{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,160px),1fr));gap:10px}
+.files button{background:var(--tint);color:var(--ink);border-color:var(--line);text-align:left}
+.files button.sel{border-color:var(--moss)}
+.folder{background:var(--card)!important;border:2px solid var(--g)!important;min-height:90px;align-content:start}
+.chat{display:grid;gap:10px;margin:12px 0}
+.b{padding:10px 14px;border-radius:14px;max-width:85%}.b.me{justify-self:end;background:var(--g);color:#fff}.b.ai{background:var(--tint);color:var(--ink)}
+.hist{display:grid;gap:6px;margin-top:10px}.hr{display:grid;grid-template-columns:70px minmax(0,1fr) 70px;gap:8px;align-items:center;font-size:14px}
+.hb{height:14px;border-radius:7px;background:var(--g)}
+table{width:100%;border-collapse:collapse;font-size:15px}th,td{padding:10px 8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+th{font-family:Montserrat,sans-serif;font-size:13px;color:var(--g2)}td.n{text-align:right;white-space:nowrap}
+.scroll{overflow-x:auto}
+textarea{width:100%;min-height:120px;font:13px/1.4 ui-monospace,monospace;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);padding:10px}
+@media(max-width:600px){.pinpad{grid-template-columns:repeat(3,minmax(0,1fr))}.card{padding:16px}}
+</style>
+</head>
+<body>
+<div class="bar" id="bar"><b>Sama Learn</b><span id="who">Demo on one laptop · works offline</span></div>
+<main id="app"></main>
+<script>
+{
+const KEY='samaLearnDemo_v1';
+const SHAPES={circle:['#5C785A','<circle cx="12" cy="12" r="8"/>'],square:['#453722','<rect x="5" y="5" width="14" height="14" rx="2"/>'],triangle:['#9C9265','<path d="M12 4 20 19H4z"/>'],star:['#B25F65','<path d="m12 3 2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 16.6l-5.4 2.9 1.2-6-4.5-4.2 6.1-.7z"/>'],heart:['#c97a2b','<path d="M12 20s-7-4.4-7-10a4 4 0 0 1 7-2.6A4 4 0 0 1 19 10c0 5.6-7 10-7 10z"/>'],moon:['#4a6fa5','<path d="M15 4a8 8 0 1 0 5 13A7 7 0 0 1 15 4z"/>']};
+const ic=(n,s=36)=>`<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="${SHAPES[n][0]}" role="img" aria-label="${n}">${SHAPES[n][1]}</svg>`;
+const ROSTER=[['PNE-G6-01','Asha Patil',6,['star','heart','circle']],['PNE-G6-02','Priya Kale',6,['triangle','circle','heart']],['PNE-G7-01','Rohan Jadhav',7,['moon','square','star']],['PNE-G7-02','Vikas Pawar',7,['circle','moon','triangle']],['PNE-G8-01','Imran Shaikh',8,['square','star','moon']],['PNE-G9-01','Sneha More',9,['heart','triangle','square']]];
+const MODS=[{id:'m1',t:'Using a laptop',d:'Switch on, use Start, open an app, type, close it and shut down safely.'},{id:'m2',t:'Typing practice',d:'Type a short sentence. Your speed is saved so you can see yourself improve.'},{id:'m3',t:'Files and folders',d:'Put each file in the right folder.'},{id:'m4',t:'Meet the AI helper',d:'Ask an AI helper questions and decide if its answers are right.'}];
+const CHECK=[['Which key starts a new line when you type?',['Enter','Space','Shift'],0],['Where do you keep files together on a computer?',['In a folder','In the mouse','In the charger'],0],['An AI helper gives you an answer. What should you do?',['Always believe it','Check it with your teacher or a book','Send it your password'],1],['What should you never type into an app or an AI helper?',['Your favourite colour','Your phone number or password','The name of a fruit'],1],['How do you switch a laptop off safely?',['Close the lid quickly','Pull out the charger','Use Start, then Shut down'],2]];
+const SENT=['I am learning to use a laptop.','My school has a new computer lab.','I can type my name and save a file.','Practice every day to get faster.'];
+const fresh=()=>({students:Object.fromEntries(ROSTER.map(r=>[r[0],{logins:0,days:[],mods:{},typing:[],start:null,end:null,last:null}]))});
+let db;try{db=JSON.parse(localStorage.getItem(KEY))||fresh()}catch(e){db=fresh()}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(db))}catch(e){}};
+const app=document.getElementById('app'),whoEl=document.getElementById('who'),bar=document.getElementById('bar');
+let S={view:'login',sel:null,pin:[],msg:'',cur:null,teacher:false};
+const stu=()=>db.students[S.cur];const info=id=>ROSTER.find(r=>r[0]===id);
+const stars=n=>'★'.repeat(n)+'☆'.repeat(3-n);
+const today=()=>new Date().toISOString().slice(0,10);
+function setBar(){bar.querySelector('button')?.remove();
+ if(S.cur||S.teacher){whoEl.textContent=S.teacher?'Teacher view':info(S.cur)[1]+' · Grade '+info(S.cur)[2];const b=document.createElement('button');b.textContent='Log out';b.dataset.a='logout';bar.appendChild(b)}
+ else whoEl.textContent='Demo on one laptop · works offline'}
+function render(){setBar();app.innerHTML=(V[S.view]||V.login)();app.querySelector('[autofocus]')?.focus()}
+const V={};
+V.login=()=>`<div class="card"><h1>Who is learning today?</h1><div class="who">${ROSTER.map(r=>`<button data-a="pick" data-id="${r[0]}" class="${S.sel===r[0]?'sel':''}">${r[1]}<br><span class="note">Grade ${r[2]}</span></button>`).join('')}</div>
+${S.sel?`<h3 style="margin-top:20px">Tap your 3 pictures</h3><div class="slots">${[0,1,2].map(i=>`<div class="slot">${S.pin[i]?ic(S.pin[i],32):''}</div>`).join('')}</div>
+<div class="pinpad">${Object.keys(SHAPES).map(k=>`<button data-a="pin" data-k="${k}" aria-label="${k}">${ic(k,40)}</button>`).join('')}</div>
+<div class="row" style="margin-top:12px"><button class="ghost" data-a="clear">Clear</button></div>`:''}<p class="msg ${S.msg?'bad':''}">${S.msg}</p></div>
+<div class="card"><h3>Teacher</h3><div class="row"><input type="password" id="tpin" inputmode="numeric" placeholder="Teacher PIN" style="max-width:200px"><button data-a="teacher">Open teacher view</button></div></div>
+<details class="card"><summary><b>Demo login cards</b></summary><p class="note">Sample students for this demo. In the programme, each student gets a printed card like this.</p><div class="grid">${ROSTER.map(r=>`<div class="card" style="margin:0"><b>${r[1]}</b><br><span class="note">${r[0]}</span><div class="row" style="margin-top:6px">${r[3].map(k=>ic(k,28)).join('')}</div></div>`).join('')}</div><p class="note">Teacher PIN for the demo: 1234</p></details>`;
+V.check=()=>{const kind=S.checkKind,ans=S.ans||{};return `<div class="card"><h1>${kind==='start'?'Starting check':'End check'}</h1><p>${kind==='start'?'Five quick questions so we know where you are starting. It is fine not to know!':'The same five questions again, to see how much you have learned.'}</p>
+${CHECK.map((q,i)=>`<div class="q"><p>${i+1}. ${q[0]}</p><div class="opts">${q[1].map((o,j)=>`<button data-a="ans" data-q="${i}" data-o="${j}" class="${ans[i]===j?'pick':''}">${o}</button>`).join('')}</div></div>`).join('')}
+<button data-a="submitcheck" ${Object.keys(ans).length<CHECK.length?'disabled':''}>Finish</button></div>`};
+V.home=()=>{const s=stu(),done=MODS.filter(m=>s.mods[m.id]?.done).length,tot=MODS.reduce((a,m)=>a+(s.mods[m.id]?.stars||0),0);
+return `<div class="card"><h1>Namaste, ${info(S.cur)[1].split(' ')[0]}</h1><p>${done} of ${MODS.length} lessons done · <span class="stars">${'★'.repeat(tot)||'☆'}</span> ${tot} stars</p></div>
+<div class="grid">${MODS.map((m,i)=>{const r=s.mods[m.id];return `<div class="card mod"><span class="tag ${r?.done?'done':''}">Lesson ${i+1}${r?.done?' · done':''}</span><h3>${m.t}</h3><p>${m.d}</p>${r?.done?`<span class="stars">${stars(r.stars)}</span>`:''}<button data-a="open" data-m="${m.id}">${r?.done?'Practise again':'Start'}</button></div>`}).join('')}</div>
+<div class="card"><h3>End check</h3>${s.end!=null?`<p>Starting check: <b>${s.start}/5</b> · End check: <b>${s.end}/5</b></p>`:''}<p>${done<MODS.length?'Finish all four lessons to unlock the end check.':'You have finished every lesson. Take the end check to see how much you have learned.'}</p><button data-a="endcheck" ${done<MODS.length?'disabled':''}>${s.end!=null?'Take it again':'Take the end check'}</button></div>`};
+const video=t=>`<div class="video"><svg width="40" height="40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><div style="flex:1"><b>Video lesson: ${t}</b><br><span style="font-size:14px">Plays from the laptop, no internet needed.</span></div><button data-a="vid">Play</button></div>`;
+const back=`<button class="ghost" data-a="home">Back to lessons</button>`;
+V.m1=()=>{const L=S.lap,st=['Press the power button to switch the laptop on.','Click the Start button at the bottom left.','Click Notes to open it.','Type your name in Notes, then press Done.','Close Notes with the red X button.','Click Start, then Shut down.','Well done! You switched the laptop off safely.'][L.step];
+const hi=a=>a===L.target?'pulse':'';
+return `${video('Your first time on a laptop')}<div class="card"><h2>Using a laptop</h2><p class="tag">Step ${Math.min(L.step+1,6)} of 6</p><p style="font-size:19px;color:var(--ink)"><b>${st}</b></p>
+<div class="laptop"><div class="screen ${L.on?'on':''}">${L.on?`<div class="icon" style="left:12px;top:12px">${ic('square',28)}<br>Files</div>
+${L.menu?`<div class="menu"><button data-a="lap" data-v="notes" class="${hi('notes')}">Notes</button><button data-a="lap" data-v="off" class="${hi('off')}">Shut down</button></div>`:''}
+${L.notes?`<div class="win"><header>Notes<button data-a="lap" data-v="close" aria-label="Close Notes" class="${hi('close')}">X</button></header><div><input type="text" id="nm" placeholder="Type your name" value="${L.name||''}"><button data-a="lap" data-v="done" class="${hi('done')}">Done</button></div></div>`:''}
+<div class="task"><button data-a="lap" data-v="start" class="${hi('start')}">Start</button></div>`:''}</div><div class="base"></div>
+<div class="pwr"><button data-a="lap" data-v="power" class="${hi('power')}" aria-label="Power button">Power</button><span class="msg ${S.msg?'bad':''}">${S.msg}</span></div></div>
+<div class="row" style="margin-top:16px">${back}</div></div>`};
+V.m2=()=>{const s=stu(),T=S.typ,best=Math.max(1,...s.typing.map(t=>t.wpm));
+return `${video('The keyboard and typing')}<div class="card"><h2>Typing practice</h2><p>Type this sentence exactly, then press Check.</p><p style="font-size:22px;color:var(--ink);font-weight:700">${T.text}</p>
+<input type="text" id="ty" autocomplete="off" autofocus placeholder="Start typing here"><div class="row" style="margin-top:10px"><button data-a="tycheck">Check</button>${back}</div><p class="msg ${T.bad?'bad':''}">${T.msg||''}</p>
+${s.typing.length?`<h3>Your typing speed</h3><div class="hist">${s.typing.slice(-6).map((t,i)=>`<div class="hr"><span>Try ${s.typing.length-Math.min(6,s.typing.length)+i+1}</span><div class="hb" style="width:${Math.max(4,t.wpm/best*100)}%"></div><span>${t.wpm} wpm</span></div>`).join('')}</div><p class="note">wpm = words per minute. Accuracy must be 80% or more to finish the lesson.</p>`:''}</div>`};
+V.m3=()=>{const F=S.fil;return `${video('Files and folders')}<div class="card"><h2>Files and folders</h2><p>Tap a file, then tap the folder it belongs in.</p>
+<div class="files">${F.files.filter(f=>!f.in).map(f=>`<button data-a="file" data-n="${f.n}" class="${F.sel===f.n?'sel':''}">${f.n}</button>`).join('')||'<p><b>All files are in their folders.</b></p>'}</div>
+<h3 style="margin-top:18px">Folders</h3><div class="files">${['Pictures','Documents','Music'].map(fd=>`<button class="folder" data-a="folder" data-f="${fd}"><b>${fd}</b><br><span class="note">${F.files.filter(f=>f.in===fd).map(f=>f.n).join(', ')||'empty'}</span></button>`).join('')}</div>
+<p class="msg ${F.bad?'bad':''}">${F.msg||''}</p><div class="row">${back}</div></div>`};
+V.m4=()=>{const A=S.ai;const Q=[['What is the capital of India?','The capital of India is New Delhi.',true],['How many legs does a spider have?','A spider has 6 legs.',false],['Can I tell you my phone number?','Please do not share your phone number, address or passwords with me or any app.',true]];
+return `${video('What is AI?')}<div class="card"><h2>Meet the AI helper</h2><ul><li>AI is a computer program that can answer questions and help you learn.</li><li>AI can be wrong. Always check important answers with your teacher or a book.</li><li>Never share your phone number, address or passwords.</li></ul>
+<h3>Ask a question</h3><div class="row">${Q.map((q,i)=>`<button class="ghost" data-a="ask" data-i="${i}" ${A.asked.includes(i)?'disabled':''}>${q[0]}</button>`).join('')}</div>
+<div class="chat">${A.asked.map(i=>`<div class="b me">${Q[i][0]}</div><div class="b ai">${Q[i][1]}</div>${A.judged[i]==null?`<div class="row"><span>Is this answer right?</span><button data-a="judge" data-i="${i}" data-v="1">Looks right</button><button class="ghost" data-a="judge" data-i="${i}" data-v="0">Looks wrong</button></div>`:`<p class="msg ${A.judged[i]===Q[i][2]?'':'bad'}">${A.judged[i]===Q[i][2]?'Correct!':'Not quite.'} ${i===1?'A spider has 8 legs. The AI helper made a mistake, which is why we check.':i===2?'The helper protected your privacy. Good.':''}</p>`}`).join('')}</div>
+<p class="note">Demo: answers here are scripted. The programme version uses an AI helper that stays within the lesson and works offline.</p><div class="row">${back}</div></div>`};
+V.teacher=()=>{const rows=ROSTER.map(r=>{const s=db.students[r[0]],t=s.typing,dn=MODS.filter(m=>s.mods[m.id]?.done).length;return `<tr><td><b>${r[1]}</b><br><span class="note">${r[0]}</span></td><td class="n">${s.days.length}</td><td class="n">${s.logins}</td><td class="n">${dn}/4</td><td class="n">${MODS.reduce((a,m)=>a+(s.mods[m.id]?.stars||0),0)}</td><td class="n">${t.length?t[0].wpm+' → '+Math.max(...t.map(x=>x.wpm)):'–'}</td><td class="n">${s.start??'–'}${s.start!=null?'/5':''}</td><td class="n">${s.end??'–'}${s.end!=null?'/5':''}</td><td class="n">${s.last||'–'}</td></tr>`}).join('');
+const js=JSON.stringify({school:'PNE demo school',exported:new Date().toISOString(),students:db.students});
+return `<div class="card"><h1>Teacher view</h1><p>Progress for every student on this laptop. Data stays on the laptop until it is synced; last synced: <b>not yet (offline)</b>.</p>
+<div class="scroll"><table><thead><tr><th>Student</th><th>Days present</th><th>Logins</th><th>Lessons</th><th>Stars</th><th>Typing wpm (first → best)</th><th>Starting check</th><th>End check</th><th>Last active</th></tr></thead><tbody>${rows}</tbody></table></div></div>
+<div class="card"><h3>Sync data</h3><p>When the laptop connects, this data uploads to Sama's dashboard. Without internet, it is copied off on the monthly visit.</p><div class="row"><button data-a="copy">Copy data</button><button class="ghost" data-a="reset">Reset demo data</button></div><p class="msg">${S.msg}</p><details><summary>Show data</summary><textarea readonly>${js.replace(/</g,'&lt;')}</textarea></details></div>`};
+function login(id){const s=db.students[id];s.logins++;if(!s.days.includes(today()))s.days.push(today());s.last=today();save();S.cur=id;S.sel=null;S.pin=[];S.msg='';
+ if(s.start==null){S.checkKind='start';S.ans={};S.view='check'}else S.view='home'}
+function finish(id,st){const s=stu(),p=s.mods[id];s.mods[id]={done:true,stars:Math.max(st,p?.stars||0)};s.last=today();save()}
+function openMod(m){S.msg='';S.view=m;
+ if(m==='m1')S.lap={step:0,on:false,menu:false,notes:false,target:'power'};
+ if(m==='m2')S.typ={text:SENT[Math.floor(Math.random()*SENT.length)]};
+ if(m==='m3')S.fil={files:[['Holi photo.jpg','Pictures'],['Homework.docx','Documents'],['Song.mp3','Music'],['Class list.xlsx','Documents'],['Picnic photo.png','Pictures']].map(([n,f])=>({n,f,in:null})),sel:null,err:0};
+ if(m==='m4')S.ai={asked:[],judged:{}}}
+const STEPS=['power','start','notes','done','close','start','off'];
+function lap(v){const L=S.lap;S.msg='';
+ if(v!==L.target){S.msg='Try the glowing button.';return}
+ if(v==='power'){L.on=true}
+ if(v==='start'){L.menu=true;if(L.step===5){L.target='off';return}}
+ if(v==='notes'){L.menu=false;L.notes=true}
+ if(v==='done'){const n=document.getElementById('nm').value.trim();if(!n){S.msg='Type your name first.';return}L.name=n}
+ if(v==='close'){L.notes=false}
+ if(v==='off'){L.menu=false;L.on=false;finish('m1',3);L.step=6;L.target=null;return}
+ L.step++;L.target=L.step===2?'notes':STEPS[L.step]}
+let t0=null;
+document.addEventListener('input',e=>{if(e.target.id==='ty'&&!t0)t0=Date.now()});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-a]');if(!b)return;const a=b.dataset.a;
+ if(a==='pick'){S.sel=b.dataset.id;S.pin=[];S.msg=''}
+ else if(a==='pin'){if(S.pin.length<3)S.pin.push(b.dataset.k);if(S.pin.length===3){const r=info(S.sel);if(r[3].join()===S.pin.join()){login(S.sel)}else{S.msg='Those pictures do not match. Try again.';S.pin=[]}}}
+ else if(a==='clear'){S.pin=[];S.msg=''}
+ else if(a==='teacher'){if(document.getElementById('tpin').value==='1234'){S.teacher=true;S.view='teacher';S.msg=''}else{S.msg='Wrong teacher PIN.'}}
+ else if(a==='logout'){S={view:'login',sel:null,pin:[],msg:'',cur:null,teacher:false}}
+ else if(a==='ans'){S.ans[b.dataset.q]=+b.dataset.o}
+ else if(a==='submitcheck'){const sc=CHECK.filter((q,i)=>S.ans[i]===q[2]).length;stu()[S.checkKind]=sc;save();S.view='home'}
+ else if(a==='endcheck'){S.checkKind='end';S.ans={};S.view='check'}
+ else if(a==='home'){S.view='home';S.msg=''}
+ else if(a==='open'){openMod(b.dataset.m)}
+ else if(a==='vid'){S.msg='';b.textContent='Lesson video goes here';b.disabled=true;return}
+ else if(a==='lap'){lap(b.dataset.v)}
+ else if(a==='tycheck'){const T=S.typ,v=document.getElementById('ty').value.trim();if(!v)return;const secs=Math.max(3,(Date.now()-(t0||Date.now()))/1000);t0=null;
+  let ok=0;for(let i=0;i<T.text.length;i++)if(v[i]===T.text[i])ok++;const acc=Math.round(ok/T.text.length*100),wpm=Math.round((v.length/5)/(secs/60));
+  stu().typing.push({wpm,acc,on:today()});save();
+  if(acc>=80){finish('m2',wpm>=15?3:wpm>=8?2:1);T.msg=`${wpm} words a minute, ${acc}% correct. Lesson done! Try again to get faster.`;T.bad=false;T.text=SENT[Math.floor(Math.random()*SENT.length)]}
+  else{T.msg=`${acc}% correct. Look carefully at each letter and try again.`;T.bad=true}}
+ else if(a==='file'){S.fil.sel=b.dataset.n;S.fil.msg=''}
+ else if(a==='folder'){const F=S.fil;if(!F.sel){F.msg='Tap a file first.';F.bad=true}else{const f=F.files.find(x=>x.n===F.sel);if(f.f===b.dataset.f){f.in=f.f;F.msg='Correct!';F.bad=false;F.sel=null;if(F.files.every(x=>x.in)){finish('m3',F.err===0?3:F.err<=2?2:1);F.msg='All done! Lesson complete.'}}else{F.err++;F.msg=`${f.n} does not go in ${b.dataset.f}. Try another folder.`;F.bad=true}}}
+ else if(a==='ask'){S.ai.asked.push(+b.dataset.i)}
+ else if(a==='judge'){const A=S.ai;A.judged[b.dataset.i]=b.dataset.v==='1';if(Object.keys(A.judged).length===3){const right=[true,false,true].filter((x,i)=>A.judged[i]===x).length;finish('m4',Math.max(1,right))}}
+ else if(a==='copy'){try{navigator.clipboard.writeText(document.querySelector('textarea').value).then(()=>{S.msg='Copied.';render()},()=>{S.msg='Copy blocked here. Open "Show data" and copy it by hand.';render()})}catch(err){S.msg='Copy blocked here.'}return}
+ else if(a==='reset'){db=fresh();save();S.msg='Demo data cleared.'}
+ render()});
+document.addEventListener('keydown',e=>{if(e.key==='Enter'&&e.target.id==='ty'){document.querySelector('[data-a=tycheck]').click()}});
+render();
+}
+</script>
+</body>
+</html>
